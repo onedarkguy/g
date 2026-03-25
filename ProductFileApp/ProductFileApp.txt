@@ -1,0 +1,131 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Product File App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ProductFileApp(),
+    );
+  }
+}
+
+class ProductFileApp extends StatefulWidget {
+  const ProductFileApp();
+  @override
+  _ProductFileAppState createState() => _ProductFileAppState();
+}
+
+class _ProductFileAppState extends State<ProductFileApp> {
+  List<Map<String, String>> products = [];
+
+  Future<File> getFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final path = p.join(dir.path, "products.txt");
+    return File(path);
+  }
+
+  Future<void> loadData() async {
+    final file = await getFile();
+
+    // create file if not exists or if it has old links
+    if (!await file.exists() ||
+        (await file.readAsString()).contains("via.placeholder")) {
+      await file.writeAsString(
+        "1,Apple,https://placehold.co/100x100/red/white.png?text=Apple,120\n"
+        "2,Banana,https://placehold.co/100x100/yellow/black.png?text=Banana,60\n"
+        "3,Mango,https://placehold.co/100x100/orange/white.png?text=Mango,150",
+      );
+    }
+
+    String data = await file.readAsString();
+    List<String> lines = data.split('\n');
+
+    products.clear();
+
+    for (String line in lines) {
+      List<String> parts = line.split(',');
+
+      if (parts.length == 4) {
+        products.add({
+          "id": parts[0],
+          "name": parts[1],
+          "photo": parts[2],
+          "price": parts[3],
+        });
+      }
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Product List")),
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            ElevatedButton(onPressed: loadData, child: Text("Load Products")),
+
+            SizedBox(height: 10),
+
+            Expanded(
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  var p = products[index];
+
+                  return Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          // Photo
+                          Container(
+                            width: 80,
+                            height: 80,
+                            child: Image.network(p["photo"]!),
+                          ),
+
+                          SizedBox(width: 10),
+
+                          // Details
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Product Id: ${p["id"]}"),
+                              Text("Name: ${p["name"]}"),
+                              Text("Price: ${p["price"]}"),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

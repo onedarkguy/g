@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Login Count App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const LoginCountApp(),
+    );
+  }
+}
+
+class LoginCountApp extends StatefulWidget {
+  const LoginCountApp();
+  @override
+  _LoginCountAppState createState() => _LoginCountAppState();
+}
+
+class _LoginCountAppState extends State<LoginCountApp> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  int loginCount = 0;
+
+  // Hardcoded credentials
+  final String correctUsername = "admin";
+  final String correctPassword = "password123";
+
+  @override
+  void initState() {
+    super.initState();
+    loadCount();
+  }
+
+  Future<void> loadCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      loginCount = prefs.getInt("count") ?? 0;
+    });
+  }
+
+  Future<void> updateCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    loginCount++;
+    await prefs.setInt("count", loginCount);
+    setState(() {});
+  }
+
+  void validateLogin() {
+    String username = usernameController.text;
+    String password = passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Fields cannot be empty")));
+      return;
+    }
+
+    if (username == correctUsername && password == correctPassword) {
+      updateCount();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Login Successful")));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Invalid Credentials")));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Login Form")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(labelText: "Username"),
+            ),
+
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(labelText: "Password"),
+              obscureText: true,
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(onPressed: validateLogin, child: Text("Login")),
+
+            SizedBox(height: 20),
+
+            Text("Login Count: $loginCount"),
+          ],
+        ),
+      ),
+    );
+  }
+}

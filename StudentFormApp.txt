@@ -1,0 +1,197 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Student Form App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const StudentFormApp(),
+    );
+  }
+}
+
+// ---------------- FORM SCREEN ----------------
+class StudentFormApp extends StatefulWidget {
+  const StudentFormApp();
+  @override
+  _StudentFormAppState createState() => _StudentFormAppState();
+}
+
+class _StudentFormAppState extends State<StudentFormApp> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  String gender = "Male";
+  String course = "BCA";
+  bool acceptTerms = false;
+
+  List<String> courses = ["BCA", "MCA", "BTech", "MTech"];
+
+  void submitForm() {
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        !acceptTerms) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Fill all fields & accept terms")));
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayScreen(
+          name: nameController.text,
+          email: emailController.text,
+          gender: gender,
+          course: course,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Student Registration")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Name
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: "Student Name"),
+            ),
+
+            // Email
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: "Email"),
+            ),
+
+            SizedBox(height: 15),
+
+            // Gender (Radio)
+            Text("Gender"),
+            Row(
+              children: [
+                Radio(
+                  value: "Male",
+                  groupValue: gender,
+                  onChanged: (value) {
+                    setState(() {
+                      gender = value.toString();
+                    });
+                  },
+                ),
+                Text("Male"),
+
+                Radio(
+                  value: "Female",
+                  groupValue: gender,
+                  onChanged: (value) {
+                    setState(() {
+                      gender = value.toString();
+                    });
+                  },
+                ),
+                Text("Female"),
+              ],
+            ),
+
+            SizedBox(height: 15),
+
+            // Course Dropdown
+            DropdownButton<String>(
+              value: course,
+              onChanged: (value) {
+                setState(() {
+                  course = value!;
+                });
+              },
+              items: courses.map((c) {
+                return DropdownMenuItem(value: c, child: Text(c));
+              }).toList(),
+            ),
+
+            SizedBox(height: 15),
+
+            // Checkbox
+            Row(
+              children: [
+                Checkbox(
+                  value: acceptTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      acceptTerms = value!;
+                    });
+                  },
+                ),
+                Text("Accept Terms"),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            // Submit Button
+            Center(
+              child: ElevatedButton(
+                onPressed: submitForm,
+                child: Text("Submit"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- DISPLAY SCREEN ----------------
+class DisplayScreen extends StatelessWidget {
+  final String name, email, gender, course;
+
+  DisplayScreen({
+    required this.name,
+    required this.email,
+    required this.gender,
+    required this.course,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Display Details")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Name: $name"),
+            Text("Email: $email"),
+            Text("Gender: $gender"),
+            Text("Course: $course"),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Back"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

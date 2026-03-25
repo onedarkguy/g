@@ -1,0 +1,115 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Calculator',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const CalculatorApp(),
+    );
+  }
+}
+
+class CalculatorApp extends StatefulWidget {
+  const CalculatorApp();
+  @override
+  _CalculatorAppState createState() => _CalculatorAppState();
+}
+
+class _CalculatorAppState extends State<CalculatorApp> {
+  TextEditingController input = TextEditingController();
+  String result = "";
+
+  double getNum() => double.tryParse(input.text) ?? 0;
+
+  int factorial(int n) => (n <= 1) ? 1 : n * factorial(n - 1);
+
+  void calculate(String op) {
+    double n = getNum();
+    setState(() {
+      switch (op) {
+        case "square":
+          result = (n * n).toString();
+          break;
+        case "sqrt":
+          result = sqrt(n).toString();
+          break;
+        case "cube":
+          result = (n * n * n).toString();
+          break;
+        case "cuberoot":
+          result = pow(n, 1 / 3).toString();
+          break;
+        case "log":
+          result = log(n).toString();
+          break;
+        case "fact":
+          result = factorial(n.toInt()).toString();
+          break;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Calculator")),
+      body: Column(
+        children: [
+          TextField(
+            controller: input,
+            decoration: InputDecoration(labelText: "Number"),
+          ),
+          Text("Result: $result"),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () => calculate("square"),
+                child: Text("Square"),
+              ),
+              ElevatedButton(
+                onPressed: () => calculate("sqrt"),
+                child: Text("Sqrt"),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () => calculate("cube"),
+                child: Text("Cube"),
+              ),
+              ElevatedButton(
+                onPressed: () => calculate("cuberoot"),
+                child: Text("CubeRoot"),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () => calculate("log"),
+                child: Text("Log"),
+              ),
+              ElevatedButton(
+                onPressed: () => calculate("fact"),
+                child: Text("Factorial"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

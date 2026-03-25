@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'dart:math';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Interest Calculator',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const InterestCalcApp(),
+    );
+  }
+}
+
+class InterestCalcApp extends StatefulWidget {
+  const InterestCalcApp();
+  @override
+  _InterestCalcAppState createState() => _InterestCalcAppState();
+}
+
+class _InterestCalcAppState extends State<InterestCalcApp> {
+  TextEditingController principalController = TextEditingController();
+
+  double rate = 5;
+  bool isCompound = false;
+
+  double interest = 0;
+
+  void calculateInterest() {
+    double principal = double.tryParse(principalController.text) ?? 0;
+
+    if (isCompound) {
+      // Compound Interest (assuming 1 year)
+      interest = principal * (pow((1 + rate / 100), 1)) - principal;
+    } else {
+      // Simple Interest (1 year)
+      interest = (principal * rate * 1) / 100;
+    }
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Interest Calculator")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Principal Input
+            Text("Principal Amount"),
+            TextField(
+              controller: principalController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(border: OutlineInputBorder()),
+            ),
+
+            SizedBox(height: 20),
+
+            // Rate Slider
+            Text("Rate of Interest: ${rate.toStringAsFixed(1)}%"),
+            Slider(
+              min: 5,
+              max: 20,
+              divisions: 15,
+              value: rate,
+              label: rate.toString(),
+              onChanged: (value) {
+                setState(() {
+                  rate = value;
+                });
+              },
+            ),
+
+            SizedBox(height: 20),
+
+            // Switch Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Simple Interest"),
+                Switch(
+                  value: isCompound,
+                  onChanged: (value) {
+                    setState(() {
+                      isCompound = value;
+                    });
+                  },
+                ),
+                Text("Compound Interest"),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            // Button
+            Center(
+              child: ElevatedButton(
+                onPressed: calculateInterest,
+                child: Text("Calculate"),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            // Output
+            Text("Principal: ${principalController.text}"),
+            Text("Rate: ${rate.toStringAsFixed(1)}%"),
+            Text("Type: ${isCompound ? "Compound" : "Simple"}"),
+            Text("Interest: ${interest.toStringAsFixed(2)}"),
+          ],
+        ),
+      ),
+    );
+  }
+}

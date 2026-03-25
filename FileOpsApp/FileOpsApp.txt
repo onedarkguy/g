@@ -1,0 +1,170 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'File Operations App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const FileOpsApp(),
+    );
+  }
+}
+
+class FileOpsApp extends StatefulWidget {
+  const FileOpsApp();
+  @override
+  _FileOpsAppState createState() => _FileOpsAppState();
+}
+
+class _FileOpsAppState extends State<FileOpsApp> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  String gender = "Male";
+  String course = "BCA";
+  bool accept = false;
+
+  List<String> courses = ["BCA", "MCA", "BTech"];
+
+  Future<File> getFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final path = p.join(dir.path, "students.txt");
+    return File(path);
+  }
+
+  String formatData() {
+    return "${nameController.text},${emailController.text},$gender,$course\n";
+  }
+
+  // ADD
+  Future<void> addData() async {
+    final file = await getFile();
+    await file.writeAsString(formatData(), mode: FileMode.append);
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Added")));
+  }
+
+  // DELETE (by name)
+  Future<void> deleteData() async {
+    final file = await getFile();
+    if (!await file.exists()) return;
+
+    String data = await file.readAsString();
+    List<String> lines = data.split('\n');
+
+    lines.removeWhere((line) => line.startsWith(nameController.text));
+
+    await file.writeAsString(lines.join('\n'));
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Deleted")));
+  }
+
+  // UPDATE (delete + add)
+  Future<void> updateData() async {
+    await deleteData();
+    await addData();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Updated")));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Student Form")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: "Student Name"),
+            ),
+
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: "Email"),
+            ),
+
+            SizedBox(height: 10),
+
+            // Gender
+            Text("Gender"),
+            Row(
+              children: [
+                Radio(
+                  value: "Male",
+                  groupValue: gender,
+                  onChanged: (val) {
+                    setState(() => gender = val.toString());
+                  },
+                ),
+                Text("Male"),
+                Radio(
+                  value: "Female",
+                  groupValue: gender,
+                  onChanged: (val) {
+                    setState(() => gender = val.toString());
+                  },
+                ),
+                Text("Female"),
+              ],
+            ),
+
+            // Course
+            DropdownButton<String>(
+              value: course,
+              onChanged: (val) {
+                setState(() => course = val!);
+              },
+              items: courses.map((c) {
+                return DropdownMenuItem(value: c, child: Text(c));
+              }).toList(),
+            ),
+
+            // Checkbox
+            Row(
+              children: [
+                Checkbox(
+                  value: accept,
+                  onChanged: (val) {
+                    setState(() => accept = val!);
+                  },
+                ),
+                Text("Accept Terms"),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            // Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(onPressed: addData, child: Text("Add")),
+                ElevatedButton(onPressed: updateData, child: Text("Update")),
+                ElevatedButton(onPressed: deleteData, child: Text("Delete")),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

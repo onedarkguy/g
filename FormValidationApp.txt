@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Form Validation',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const FormValidationApp(),
+    );
+  }
+}
+
+class FormValidationApp extends StatefulWidget {
+  const FormValidationApp();
+  @override
+  _FormValidationAppState createState() => _FormValidationAppState();
+}
+
+class _FormValidationAppState extends State<FormValidationApp> {
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController password = TextEditingController();
+
+  // ✅ Name Validation (letters only)
+  bool isValidName(String n) {
+    String letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    if (n.isEmpty) return false;
+
+    for (int i = 0; i < n.length; i++) {
+      if (!letters.contains(n[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // ✅ Email Validation (simple)
+  bool isValidEmail(String e) {
+    if (e.isEmpty) return false;
+
+    if (!e.contains('@') || !e.contains('.')) return false;
+    if (e.startsWith('@') || e.endsWith('.')) return false;
+
+    return true;
+  }
+
+  // ✅ Phone Validation (digits only)
+  bool isValidPhone(String p) {
+    String digits = "0123456789";
+
+    if (p.isEmpty) return false;
+
+    for (int i = 0; i < p.length; i++) {
+      if (!digits.contains(p[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  void validate() {
+    String n = name.text;
+    String e = email.text;
+    String p = phone.text;
+    String pass = password.text;
+
+    if (!isValidName(n)) {
+      showMessage("Invalid Name");
+    } else if (!isValidEmail(e)) {
+      showMessage("Invalid Email");
+    } else if (!isValidPhone(p)) {
+      showMessage("Invalid Phone");
+    } else if (pass.length <= 8) {
+      showMessage("Password must be > 8 characters");
+    } else {
+      showMessage("All Valid!");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Form Validation")),
+      body: Column(
+        children: [
+          TextField(controller: name, decoration: InputDecoration(labelText: "Name")),
+          TextField(controller: email, decoration: InputDecoration(labelText: "Email")),
+          TextField(controller: phone, decoration: InputDecoration(labelText: "Phone")),
+          TextField(controller: password, decoration: InputDecoration(labelText: "Password"), obscureText: true),
+          ElevatedButton(onPressed: validate, child: Text("Validate")),
+        ],
+      ),
+    );
+  }
+}

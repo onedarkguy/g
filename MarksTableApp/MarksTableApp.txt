@@ -1,0 +1,136 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Student Marks',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const MarksTableApp(),
+    );
+  }
+}
+
+class MarksTableApp extends StatefulWidget {
+  const MarksTableApp();
+  @override
+  _MarksTableAppState createState() => _MarksTableAppState();
+}
+
+class _MarksTableAppState extends State<MarksTableApp> {
+  List<Map<String, dynamic>> students = [];
+
+  Future<File> getFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final path = p.join(dir.path, "student_marks.txt");
+    return File(path);
+  }
+
+  String getGrade(double avg) {
+    if (avg >= 75) return "A";
+    if (avg >= 60) return "B";
+    if (avg >= 50) return "C";
+    return "D";
+  }
+
+  Future<void> loadData() async {
+    final file = await getFile();
+
+    // create file with sample data if not exists
+    if (!await file.exists()) {
+      await file.writeAsString(
+        "1,John,70,80,90\n"
+        "2,Riya,60,65,70\n"
+        "3,Sam,40,50,45",
+      );
+    }
+
+    String data = await file.readAsString();
+    List<String> lines = data.split('\n');
+
+    students.clear();
+
+    for (String line in lines) {
+      List<String> parts = line.split(',');
+
+      if (parts.length == 5) {
+        int m1 = int.parse(parts[2]);
+        int m2 = int.parse(parts[3]);
+        int m3 = int.parse(parts[4]);
+
+        int total = m1 + m2 + m3;
+        double avg = total / 3;
+        String grade = getGrade(avg);
+
+        students.add({
+          "roll": parts[0],
+          "name": parts[1],
+          "total": total,
+          "avg": avg.toStringAsFixed(2),
+          "grade": grade,
+        });
+      }
+    }
+
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Student Results")),
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            ElevatedButton(onPressed: loadData, child: Text("Load Data")),
+
+            SizedBox(height: 10),
+
+            // Table
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: [
+                    DataColumn(label: Text("Roll")),
+                    DataColumn(label: Text("Name")),
+                    DataColumn(label: Text("Total")),
+                    DataColumn(label: Text("Average")),
+                    DataColumn(label: Text("Grade")),
+                  ],
+                  rows: students.map((s) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(s["roll"])),
+                        DataCell(Text(s["name"])),
+                        DataCell(Text(s["total"].toString())),
+                        DataCell(Text(s["avg"])),
+                        DataCell(Text(s["grade"])),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Contacts App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ContactsApp(),
+    );
+  }
+}
+
+// ---------------- SCREEN 1 ----------------
+class ContactsApp extends StatefulWidget {
+  const ContactsApp();
+  @override
+  _ContactsAppState createState() => _ContactsAppState();
+}
+
+class _ContactsAppState extends State<ContactsApp> {
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  Future<void> saveContact() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String phone = phoneController.text;
+
+    await prefs.setString(phone + "_name", nameController.text);
+    await prefs.setString(phone + "_email", emailController.text);
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Contact Saved")));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Save Contact")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: phoneController,
+              decoration: InputDecoration(labelText: "Phone Number"),
+              keyboardType: TextInputType.phone,
+            ),
+
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(labelText: "Contact Name"),
+            ),
+
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: "Email Address"),
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(onPressed: saveContact, child: Text("Save Contact")),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SecondScreen()),
+                );
+              },
+              child: Text("Go to View Screen"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- SCREEN 2 ----------------
+class SecondScreen extends StatefulWidget {
+  @override
+  _SecondScreenState createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  TextEditingController phoneController = TextEditingController();
+
+  String name = "";
+  String email = "";
+
+  Future<void> getContact() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String phone = phoneController.text;
+
+    setState(() {
+      name = prefs.getString(phone + "_name") ?? "Not Found";
+      email = prefs.getString(phone + "_email") ?? "Not Found";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("View Contact")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: phoneController,
+              decoration: InputDecoration(labelText: "Enter Phone Number"),
+              keyboardType: TextInputType.phone,
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(onPressed: getContact, child: Text("View Contact")),
+
+            SizedBox(height: 20),
+
+            Text("Name: $name"),
+            Text("Email: $email"),
+          ],
+        ),
+      ),
+    );
+  }
+}

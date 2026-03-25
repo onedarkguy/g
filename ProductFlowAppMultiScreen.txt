@@ -1,0 +1,314 @@
+import 'package:flutter/material.dart';
+
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Product Flow App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ProductFlowApp(),
+    );
+  }
+}
+
+
+// GLOBAL DATA (simple exam approach)
+Map<String, dynamic> product = {
+  "name": "",
+  "brand": "Dell",
+  "ram": "8GB",
+  "os": false,
+  "price": 50000.0,
+};
+
+// Drawer Widget
+Drawer buildDrawer(BuildContext context) {
+  return Drawer(
+    child: ListView(
+      children: [
+        DrawerHeader(child: Text("Navigate")),
+        ListTile(
+          title: Text("Screen 1"),
+          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ProductFlowApp())),
+        ),
+        ListTile(
+          title: Text("Screen 2"),
+          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Screen2())),
+        ),
+        ListTile(
+          title: Text("Screen 3"),
+          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Screen3())),
+        ),
+        ListTile(
+          title: Text("Screen 4"),
+          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Screen4())),
+        ),
+        ListTile(
+          title: Text("Display"),
+          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DisplayScreen())),
+        ),
+      ],
+    ),
+  );
+}
+
+// ---------------- PRODUCT FLOW APP ----------------
+class ProductFlowApp extends StatefulWidget {
+  const ProductFlowApp({Key? key}) : super(key: key);
+
+  @override
+  _ProductFlowAppState createState() => _ProductFlowAppState();
+}
+
+class _ProductFlowAppState extends State<ProductFlowApp> {
+  late TextEditingController nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    nameController.text = product["name"];
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Product Name")),
+      drawer: buildDrawer(context),
+      body: Column(
+        children: [
+          TextField(
+            controller: nameController,
+            decoration: InputDecoration(labelText: "Product Name"),
+            onChanged: (val) => product["name"] = val,
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Screen2())),
+            child: Text("Next"),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Old build method to replace:
+// @override
+// Widget build(BuildContext context) {
+//   nameController.text = product["name"];
+//
+//   return Scaffold(
+//     appBar: AppBar(title: Text("Product Name")),
+//     drawer: buildDrawer(context),
+//     body: Column(
+//       children: [
+//         TextField(
+//           controller: nameController,
+//           decoration: InputDecoration(labelText: "Product Name"),
+//           onChanged: (val) => product["name"] = val,
+//         ),
+//         ElevatedButton(
+//           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Screen2())),
+//           child: Text("Next"),
+//         ),
+//       ],
+//     ),
+//   );
+// }
+
+// ---------------- SCREEN 2 ----------------
+class Screen2 extends StatefulWidget {
+  const Screen2({Key? key}) : super(key: key);
+  @override
+  _Screen2State createState() => _Screen2State();
+}
+
+class _Screen2State extends State<Screen2> {
+  List<String> brands = ["Dell", "HP", "Lenovo"];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Brand")),
+      drawer: buildDrawer(context),
+      body: Column(
+        children: [
+          DropdownButton<String>(
+            value: product["brand"],
+            onChanged: (val) {
+              setState(() => product["brand"] = val);
+            },
+            items: brands.map((b) {
+              return DropdownMenuItem(value: b, child: Text(b));
+            }).toList(),
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Back"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Screen3())),
+                child: Text("Next"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------- SCREEN 3 ----------------
+class Screen3 extends StatefulWidget {
+  const Screen3({Key? key}) : super(key: key);
+  @override
+  _Screen3State createState() => _Screen3State();
+}
+
+class _Screen3State extends State<Screen3> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("RAM & OS")),
+      drawer: buildDrawer(context),
+      body: Column(
+        children: [
+
+          // RAM (Radio)
+          Text("RAM Size"),
+          RadioListTile(
+            title: Text("8GB"),
+            value: "8GB",
+            groupValue: product["ram"],
+            onChanged: (val) {
+              setState(() => product["ram"] = val);
+            },
+          ),
+          RadioListTile(
+            title: Text("16GB"),
+            value: "16GB",
+            groupValue: product["ram"],
+            onChanged: (val) {
+              setState(() => product["ram"] = val);
+            },
+          ),
+
+          // OS (Switch)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Windows"),
+              Switch(
+                value: product["os"],
+                onChanged: (val) {
+                  setState(() => product["os"] = val);
+                },
+              ),
+              Text("Linux"),
+            ],
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Back"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Screen4())),
+                child: Text("Next"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------- SCREEN 4 ----------------
+class Screen4 extends StatefulWidget {
+  const Screen4({Key? key}) : super(key: key);
+  @override
+  _Screen4State createState() => _Screen4State();
+}
+
+class _Screen4State extends State<Screen4> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Price")),
+      drawer: buildDrawer(context),
+      body: Column(
+        children: [
+
+          Text("Price: ${product["price"].toStringAsFixed(0)}"),
+
+          Slider(
+            min: 10000,
+            max: 200000,
+            divisions: 10,
+            value: product["price"],
+            onChanged: (val) {
+              setState(() => product["price"] = val);
+            },
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("Back"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => DisplayScreen())),
+                child: Text("Finish"),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------- DISPLAY SCREEN ----------------
+class DisplayScreen extends StatelessWidget {
+  const DisplayScreen({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Product Details")),
+      drawer: buildDrawer(context),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Name: ${product["name"]}"),
+          Text("Brand: ${product["brand"]}"),
+          Text("RAM: ${product["ram"]}"),
+          Text("OS: ${product["os"] ? "Linux" : "Windows"}"),
+          Text("Price: ${product["price"].toStringAsFixed(0)}"),
+        ],
+      ),
+    );
+  }
+}

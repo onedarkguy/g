@@ -1,0 +1,111 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Age Calculator App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const AgeCalculatorApp(),
+    );
+  }
+}
+
+class AgeCalculatorApp extends StatefulWidget {
+  const AgeCalculatorApp();
+  @override
+  _AgeCalculatorAppState createState() => _AgeCalculatorAppState();
+}
+
+class _AgeCalculatorAppState extends State<AgeCalculatorApp> {
+  DateTime currentDate = DateTime.now();
+  DateTime? selectedDate;
+
+  String result = "";
+
+  String formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
+  Future<void> pickDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2000),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  void calculateAge() {
+    if (selectedDate == null) {
+      setState(() {
+        result = "Please select a date";
+      });
+      return;
+    }
+
+    Duration diff = currentDate.difference(selectedDate!);
+
+    int years = diff.inDays ~/ 365;
+    int minutes = diff.inMinutes;
+    int seconds = diff.inSeconds;
+
+    setState(() {
+      result = "Years: $years\nMinutes: $minutes\nSeconds: $seconds";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Age Calculator")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Current Date
+            Text("Current Date: ${formatDate(currentDate)}"),
+
+            SizedBox(height: 20),
+
+            // Selected Date
+            Text(
+              selectedDate == null
+                  ? "No Date Selected"
+                  : "Selected Date: ${formatDate(selectedDate!)}",
+            ),
+
+            SizedBox(height: 10),
+
+            ElevatedButton(onPressed: pickDate, child: Text("Select Date")),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: calculateAge,
+              child: Text("Calculate Age"),
+            ),
+
+            SizedBox(height: 20),
+
+            // Result
+            Text(result),
+          ],
+        ),
+      ),
+    );
+  }
+}

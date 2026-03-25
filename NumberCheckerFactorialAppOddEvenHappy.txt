@@ -1,0 +1,74 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Number Checker',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const NumberCheckerApp(),
+    );
+  }
+}
+
+class NumberCheckerApp extends StatefulWidget {
+  const NumberCheckerApp();
+  @override
+  _NumberCheckerAppState createState() => _NumberCheckerAppState();
+}
+
+class _NumberCheckerAppState extends State<NumberCheckerApp> {
+  TextEditingController input = TextEditingController();
+  String result = "";
+
+  int factorial(int n) => (n <= 1) ? 1 : n * factorial(n - 1);
+
+  bool isHappy(int n) {
+    int sum = 0;
+    while (n != 1 && n != 4) {
+      sum = 0;
+      while (n > 0) {
+        int d = n % 10;
+        sum += d * d;
+        n ~/= 10;
+      }
+      n = sum;
+    }
+    return n == 1;
+  }
+
+  void check() {
+    int n = int.tryParse(input.text) ?? 0;
+
+    setState(() {
+      result =
+          "Factorial: ${factorial(n)}\n"
+          "Even/Odd: ${n % 2 == 0 ? "Even" : "Odd"}\n"
+          "Happy Number: ${isHappy(n) ? "Yes" : "No"}";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Number Checker")),
+      body: Column(
+        children: [
+          TextField(
+            controller: input,
+            decoration: InputDecoration(labelText: "Enter Number"),
+          ),
+          ElevatedButton(onPressed: check, child: Text("Check")),
+          Text(result),
+        ],
+      ),
+    );
+  }
+}

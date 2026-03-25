@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Unit Converter App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const UnitConverterApp(),
+    );
+  }
+}
+
+
+class UnitConverterApp extends StatefulWidget {
+    const UnitConverterApp();
+  @override
+  _UnitConverterAppState createState() => _UnitConverterAppState();
+}
+
+class _UnitConverterAppState extends State<UnitConverterApp> {
+  TextEditingController inputController = TextEditingController();
+  TextEditingController resultController = TextEditingController();
+
+  String conversionType = "kgTolbs";
+
+  void convert() {
+    double value = double.tryParse(inputController.text) ?? 0;
+    double result = 0;
+
+    if (conversionType == "kgTolbs") {
+      result = value * 2.20462;
+    } else if (conversionType == "mileToFeet") {
+      result = value * 5280;
+    } else if (conversionType == "kcalToKJ") {
+      result = value * 4.184;
+    } else if (conversionType == "whToJ") {
+      result = value * 3600;
+    }
+
+    resultController.text = result.toStringAsFixed(2);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Unit Converter")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            // Input
+            TextField(
+              controller: inputController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Enter Value"),
+            ),
+
+            SizedBox(height: 20),
+
+            // Radio Buttons
+            Text("Select Conversion"),
+
+            Row(
+              children: [
+                Radio(
+                  value: "kgTolbs",
+                  groupValue: conversionType,
+                  onChanged: (value) {
+                    setState(() {
+                      conversionType = value.toString();
+                    });
+                  },
+                ),
+                Text("Kg → lbs"),
+              ],
+            ),
+
+            Row(
+              children: [
+                Radio(
+                  value: "mileToFeet",
+                  groupValue: conversionType,
+                  onChanged: (value) {
+                    setState(() {
+                      conversionType = value.toString();
+                    });
+                  },
+                ),
+                Text("Mile → Feet"),
+              ],
+            ),
+
+            Row(
+              children: [
+                Radio(
+                  value: "kcalToKJ",
+                  groupValue: conversionType,
+                  onChanged: (value) {
+                    setState(() {
+                      conversionType = value.toString();
+                    });
+                  },
+                ),
+                Text("KCal → KJoule"),
+              ],
+            ),
+
+            Row(
+              children: [
+                Radio(
+                  value: "whToJ",
+                  groupValue: conversionType,
+                  onChanged: (value) {
+                    setState(() {
+                      conversionType = value.toString();
+                    });
+                  },
+                ),
+                Text("Watt-hour → Joule"),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            // Button
+            Center(
+              child: ElevatedButton(
+                onPressed: convert,
+                child: Text("Convert"),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            // Result
+            TextField(
+              controller: resultController,
+              readOnly: true,
+              decoration: InputDecoration(labelText: "Result"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

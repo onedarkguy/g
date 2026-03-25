@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'String Operations App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const StringOpsApp(),
+    );
+  }
+}
+
+class StringOpsApp extends StatefulWidget {
+  const StringOpsApp();
+  @override
+  _StringOpsAppState createState() => _StringOpsAppState();
+}
+
+class _StringOpsAppState extends State<StringOpsApp> {
+  TextEditingController textController = TextEditingController();
+
+  bool wordCheck = false;
+  bool charCheck = false;
+  bool spaceCheck = false;
+  bool reverseCheck = false;
+
+  void processData() {
+    String text = textController.text;
+
+    int words = text.trim().isEmpty
+        ? 0
+        : text.trim().split(RegExp(r'\s+')).length;
+    int chars = text.length;
+    int spaces = text.split('').where((c) => c == ' ').length;
+    String reversed = text.split('').reversed.join();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayScreen(
+          text: text,
+          showWords: wordCheck,
+          showChars: charCheck,
+          showSpaces: spaceCheck,
+          showReverse: reverseCheck,
+          words: words,
+          chars: chars,
+          spaces: spaces,
+          reversed: reversed,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("String Operations")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Input
+            TextField(
+              controller: textController,
+              maxLines: 4,
+              decoration: InputDecoration(labelText: "Enter Text"),
+            ),
+
+            SizedBox(height: 15),
+
+            // Checkboxes
+            CheckboxListTile(
+              title: Text("Number of Words"),
+              value: wordCheck,
+              onChanged: (val) {
+                setState(() {
+                  wordCheck = val!;
+                });
+              },
+            ),
+
+            CheckboxListTile(
+              title: Text("Number of Characters"),
+              value: charCheck,
+              onChanged: (val) {
+                setState(() {
+                  charCheck = val!;
+                });
+              },
+            ),
+
+            CheckboxListTile(
+              title: Text("Number of White Spaces"),
+              value: spaceCheck,
+              onChanged: (val) {
+                setState(() {
+                  spaceCheck = val!;
+                });
+              },
+            ),
+
+            CheckboxListTile(
+              title: Text("Reverse String"),
+              value: reverseCheck,
+              onChanged: (val) {
+                setState(() {
+                  reverseCheck = val!;
+                });
+              },
+            ),
+
+            SizedBox(height: 20),
+
+            // Button
+            ElevatedButton(onPressed: processData, child: Text("Display")),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------- DISPLAY SCREEN ----------------
+class DisplayScreen extends StatelessWidget {
+  final String text;
+  final bool showWords, showChars, showSpaces, showReverse;
+  final int words, chars, spaces;
+  final String reversed;
+
+  DisplayScreen({
+    required this.text,
+    required this.showWords,
+    required this.showChars,
+    required this.showSpaces,
+    required this.showReverse,
+    required this.words,
+    required this.chars,
+    required this.spaces,
+    required this.reversed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Results")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (showWords) Text("Words: $words"),
+            if (showChars) Text("Characters: $chars"),
+            if (showSpaces) Text("White Spaces: $spaces"),
+            if (showReverse) Text("Reversed: $reversed"),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text("Back"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

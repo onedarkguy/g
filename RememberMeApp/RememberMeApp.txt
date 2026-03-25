@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Remember Me App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const RememberMeApp(),
+    );
+  }
+}
+
+class RememberMeApp extends StatefulWidget {
+  const RememberMeApp();
+  @override
+  _RememberMeAppState createState() => _RememberMeAppState();
+}
+
+class _RememberMeAppState extends State<RememberMeApp> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  double rememberSlider = 0; // 0 = OFF, 1 = ON
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      usernameController.text = prefs.getString("username") ?? "";
+      passwordController.text = prefs.getString("password") ?? "";
+      emailController.text = prefs.getString("email") ?? "";
+      rememberSlider = prefs.getBool("remember") == true ? 1 : 0;
+    });
+  }
+
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (rememberSlider == 1) {
+      await prefs.setString("username", usernameController.text);
+      await prefs.setString("password", passwordController.text);
+      await prefs.setString("email", emailController.text);
+      await prefs.setBool("remember", true);
+    } else {
+      await prefs.clear();
+    }
+  }
+
+  void validateAndSubmit() {
+    String username = usernameController.text;
+    String password = passwordController.text;
+    String email = emailController.text;
+
+    if (username.isEmpty || password.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Fields cannot be empty")));
+      return;
+    }
+
+    if (password.length <= 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Password must be > 8 characters")),
+      );
+      return;
+    }
+
+    saveData();
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Form Submitted")));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("User Form")),
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: usernameController,
+              decoration: InputDecoration(labelText: "Username"),
+            ),
+
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(labelText: "Password"),
+              obscureText: true,
+            ),
+
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(labelText: "Email"),
+            ),
+
+            SizedBox(height: 20),
+
+            // Slider for Remember Me
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Remember Me: ${rememberSlider == 1 ? "ON" : "OFF"}"),
+                Slider(
+                  min: 0,
+                  max: 1,
+                  divisions: 1,
+                  value: rememberSlider,
+                  onChanged: (value) {
+                    setState(() {
+                      rememberSlider = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(onPressed: validateAndSubmit, child: Text("Submit")),
+          ],
+        ),
+      ),
+    );
+  }
+}
