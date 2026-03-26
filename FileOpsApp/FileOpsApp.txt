@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class FileOpsApp extends StatefulWidget {
   const FileOpsApp();
   @override
@@ -36,6 +35,8 @@ class _FileOpsAppState extends State<FileOpsApp> {
   bool accept = false;
 
   List<String> courses = ["BCA", "MCA", "BTech"];
+  String fileContent = "";
+
 
   Future<File> getFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -81,87 +82,93 @@ class _FileOpsAppState extends State<FileOpsApp> {
         .showSnackBar(SnackBar(content: Text("Updated")));
   }
 
+  // READ
+  Future<void> readData() async {
+    final file = await getFile();
+    if (await file.exists()) {
+      String data = await file.readAsString();
+      setState(() {
+        fileContent = data;
+      });
+    } else {
+      setState(() {
+        fileContent = "File not found";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Student Form")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: "Student Name"),
+              ),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: "Email"),
+              ),
+              SizedBox(height: 10),
 
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: "Student Name"),
-            ),
+              Text("Gender"),
+              Row(
+                children: [
+                  Radio(
+                    value: "Male",
+                    groupValue: gender,
+                    onChanged: (val) => setState(() => gender = val.toString()),
+                  ),
+                  Text("Male"),
+                  Radio(
+                    value: "Female",
+                    groupValue: gender,
+                    onChanged: (val) => setState(() => gender = val.toString()),
+                  ),
+                  Text("Female"),
+                ],
+              ),
 
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
-            ),
+              DropdownButton<String>(
+                value: course,
+                onChanged: (val) => setState(() => course = val!),
+                items: courses.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+              ),
 
-            SizedBox(height: 10),
+              Row(
+                children: [
+                  Checkbox(
+                    value: accept,
+                    onChanged: (val) => setState(() => accept = val!),
+                  ),
+                  Text("Accept Terms"),
+                ],
+              ),
 
-            // Gender
-            Text("Gender"),
-            Row(
-              children: [
-                Radio(
-                  value: "Male",
-                  groupValue: gender,
-                  onChanged: (val) {
-                    setState(() => gender = val.toString());
-                  },
-                ),
-                Text("Male"),
-                Radio(
-                  value: "Female",
-                  groupValue: gender,
-                  onChanged: (val) {
-                    setState(() => gender = val.toString());
-                  },
-                ),
-                Text("Female"),
-              ],
-            ),
+              SizedBox(height: 10),
 
-            // Course
-            DropdownButton<String>(
-              value: course,
-              onChanged: (val) {
-                setState(() => course = val!);
-              },
-              items: courses.map((c) {
-                return DropdownMenuItem(value: c, child: Text(c));
-              }).toList(),
-            ),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  ElevatedButton(onPressed: addData, child: Text("Add")),
+                  ElevatedButton(onPressed: updateData, child: Text("Update")),
+                  ElevatedButton(onPressed: deleteData, child: Text("Delete")),
+                  ElevatedButton(onPressed: readData, child: Text("Read")),
+                ],
+              ),
 
-            // Checkbox
-            Row(
-              children: [
-                Checkbox(
-                  value: accept,
-                  onChanged: (val) {
-                    setState(() => accept = val!);
-                  },
-                ),
-                Text("Accept Terms"),
-              ],
-            ),
-
-            SizedBox(height: 20),
-
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(onPressed: addData, child: Text("Add")),
-                ElevatedButton(onPressed: updateData, child: Text("Update")),
-                ElevatedButton(onPressed: deleteData, child: Text("Delete")),
-              ],
-            ),
-          ],
+              SizedBox(height: 20),
+              Text("File Content:"),
+              Text(fileContent),
+            ],
+          ),
         ),
       ),
     );
