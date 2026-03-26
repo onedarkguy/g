@@ -37,7 +37,6 @@ class _FileOpsAppState extends State<FileOpsApp> {
   List<String> courses = ["BCA", "MCA", "BTech"];
   String fileContent = "";
 
-
   Future<File> getFile() async {
     final dir = await getApplicationDocumentsDirectory();
     final path = p.join(dir.path, "students.txt");
@@ -53,8 +52,9 @@ class _FileOpsAppState extends State<FileOpsApp> {
     final file = await getFile();
     await file.writeAsString(formatData(), mode: FileMode.append);
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Added")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Added")));
   }
 
   // DELETE (by name)
@@ -69,8 +69,9 @@ class _FileOpsAppState extends State<FileOpsApp> {
 
     await file.writeAsString(lines.join('\n'));
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Deleted")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Deleted")));
   }
 
   // UPDATE (delete + add)
@@ -78,8 +79,9 @@ class _FileOpsAppState extends State<FileOpsApp> {
     await deleteData();
     await addData();
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Updated")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Updated")));
   }
 
   // READ
@@ -138,7 +140,9 @@ class _FileOpsAppState extends State<FileOpsApp> {
               DropdownButton<String>(
                 value: course,
                 onChanged: (val) => setState(() => course = val!),
-                items: courses.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                items: courses
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
               ),
 
               Row(
